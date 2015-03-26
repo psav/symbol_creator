@@ -37,7 +37,7 @@ for filename in files:
         elem = root.findall('{http://www.w3.org/2000/svg}path')
 
         # If we find more than one continue and skip the file
-        if len(elem) != 1:
+        if len(elem) == 0:
             print "{} failed!".format(filename)
             e += 1
             continue
