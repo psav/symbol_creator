@@ -38,6 +38,7 @@ for filename in files:
 
         # If we find more than one continue and skip the file
         if len(elem) != 1:
+            print "{} failed!".format(filename)
             e += 1
             continue
         else:
