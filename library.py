@@ -34,25 +34,27 @@ for filename in files:
         root = tree.getroot()
 
         # Fine _all_ the paths (hint: I only wanted one :( )
-        elem = root.findall('{http://www.w3.org/2000/svg}path')
-
+        elems = []
+        for elem in root.iter():
+            if elem.tag == '{http://www.w3.org/2000/svg}path':
+                elems.append(elem)
         # If we find more than one continue and skip the file
-        if len(elem) == 0:
+        if len(elems) == 0:
             print "{} failed!".format(filename)
             e += 1
             continue
         else:
             c += 1
-            elem = elem[0]
 
-        # Wrap the path in the base template
-        ntree = ET.fromstring(template)
-        ntree.set('id', name)
-        ntree.find('title').text = name
-        ntree.insert(1, elem)
+        for elem in elems:
+            # Wrap the path in the base template
+            ntree = ET.fromstring(template)
+            ntree.set('id', name)
+            ntree.find('title').text = name
+            ntree.insert(1, elem)
 
-        # Add the symbol to the 'defs'
-        dtree.insert(1, ntree)
+            # Add the symbol to the 'defs'
+            dtree.insert(1, ntree)
 
 # Add the 'defs' to the base.svg file
 broot.insert(5, dtree)
