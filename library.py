@@ -1,70 +1,58 @@
+import argparse
 import os
 import os.path
-import xml.etree.ElementTree as ET
 import re
+from symlib import SymbolLibrary
 
-# Create a base template object for the "symbol"
-template = """<symbol id="">
-<title></title>
-</symbol>"""
+parser = argparse.ArgumentParser(argument_default=None)
 
-# Create the container for the symbols
-dtree = ET.fromstring("<defs></defs>")
+interaction = parser.add_argument_group('Main Options')
+interaction.add_argument('--directory',
+                         help="Directory containing SVG files",
+                         default=None)
+interaction.add_argument('--output',
+                         help="Directory containing SVG files",
+                         default="output.svg")
+interaction.add_argument('--filter',
+                         help="Filter the filenames with regex match",
+                         default=None)
 
-# Create the base svg file
-btree = ET.parse('base.svg')
-broot = btree.getroot()
+metadata = parser.add_argument_group('Metadata')
+metadata.add_argument('--title',
+                      help="Title of Library",
+                      default="Symbol Library")
+metadata.add_argument('--description',
+                      help="Description of Library",
+                      default="A symbol library")
+metadata.add_argument('--author',
+                      help="The Author of the library",
+                      default="Anon")
+args = vars(parser.parse_args())
 
 # Make us some nice counters for errors and conversions
 c = 0
 e = 0
 
 # Iterate the files in the "library" dir
-files = os.listdir('library')
+files = [os.path.join(d, fn) for d, dn, fns in os.walk('raw_lib') for fn in fns]
+
+
+symlib = SymbolLibrary(args['output'], title=args['title'], description=args['description'],
+                       author=args['author'])
+
 for filename in files:
-
     # Only process '.svg' files
-    if 'svg' in filename:
+    if '.svg' in filename:
+        if args['filter']:
+            if not re.match(args['filter'], filename):
+                continue
+            try:
+                symlib.add_file(filename)
+                c += 1
+            except:
+                e += 1
+                continue
 
-        # Grab the name of the symbol from the filename
-        name = os.path.splitext(filename)[0]
+print "Successfully converted {} out of {} files".format(c, e + c)
 
-        # Find the root element
-        tree = ET.parse(os.path.join('library', filename))
-        root = tree.getroot()
-
-        # Fine _all_ the paths (hint: I only wanted one :( )
-        elems = []
-        for elem in root.iter():
-            if elem.tag == '{http://www.w3.org/2000/svg}path':
-                elems.append(elem)
-        # If we find more than one continue and skip the file
-        if len(elems) == 0:
-            print "{} failed!".format(filename)
-            e += 1
-            continue
-        else:
-            c += 1
-
-        for elem in elems:
-            # Wrap the path in the base template
-            ntree = ET.fromstring(template)
-            ntree.set('id', name)
-            ntree.find('title').text = name
-            ntree.insert(1, elem)
-
-            # Add the symbol to the 'defs'
-            dtree.insert(1, ntree)
-
-# Add the 'defs' to the base.svg file
-broot.insert(5, dtree)
-output = ET.tostring(broot)
-
-# Nasty hack to remove the ns0 namespace else inkscape doesn't like it
-xmlstring = re.sub('ns0:', '', output)
-
-# Write it out
-with open('output.svg', "w") as f:
-    f.write(xmlstring)
-
-print "Parsed {} files, successfully converted {}".format(e + c, c)
+symlib.write_library()
