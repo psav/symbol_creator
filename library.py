@@ -2,6 +2,7 @@ import argparse
 import os
 import os.path
 import re
+
 from symlib import SymbolLibrary
 
 parser = argparse.ArgumentParser(argument_default=None)
@@ -9,7 +10,7 @@ parser = argparse.ArgumentParser(argument_default=None)
 interaction = parser.add_argument_group('Main Options')
 interaction.add_argument('--directory',
                          help="Directory containing SVG files",
-                         default=None)
+                         default="library")
 interaction.add_argument('--output',
                          help="Directory containing SVG files",
                          default="output.svg")
@@ -29,12 +30,13 @@ metadata.add_argument('--author',
                       default="Anon")
 args = vars(parser.parse_args())
 
+
 # Make us some nice counters for errors and conversions
 c = 0
 e = 0
 
 # Iterate the files in the "library" dir
-files = [os.path.join(d, fn) for d, dn, fns in os.walk('raw_lib') for fn in fns]
+files = [os.path.join(d, fn) for d, dn, fns in os.walk(args['directory']) for fn in fns]
 
 
 symlib = SymbolLibrary(args['output'], title=args['title'], description=args['description'],
