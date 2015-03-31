@@ -24,10 +24,10 @@ style="fill:black;stroke:black">
 </dc:creator>
 <dc:rights>
 <cc:Agent>
-<dc:title>License to go here</dc:title>
+<dc:title>##license##</dc:title>
 </cc:Agent>
 </dc:rights>
-<dc:language>English</dc:language>
+<dc:language>##language##</dc:language>
 <dc:description>##description##</dc:description>
 </cc:Work>
 </rdf:RDF>

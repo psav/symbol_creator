@@ -3,6 +3,13 @@ import os.path
 import re
 
 
+METADATA = dict(title="Symbol Library",
+                description="A symbol library",
+                author="Anon",
+                license="License",
+                language="English")
+
+
 class SymbolLibrary(object):
 
     # Create a base template object for the "symbol"
@@ -10,8 +17,10 @@ class SymbolLibrary(object):
     <title></title>
     </symbol>"""
 
-    def __init__(self, filename, base="base.svg", title="Symbol Library",
-                 description="A symbol library", author="Anon"):
+    def __init__(self, filename, base="base.svg", metadata=None):
+
+        if not metadata:
+            metadata = METADATA
 
         self.filename = filename
 
@@ -22,12 +31,10 @@ class SymbolLibrary(object):
 
         with open(base) as f:
             base_svg = f.read()
-        if title:
-            base_svg = base_svg.replace("##title##", title)
-        if description:
-            base_svg = base_svg.replace("##description##", description)
-        if author:
-            base_svg = base_svg.replace("##author##", author)
+
+        for m_key in METADATA:
+            value = metadata.get(m_key, METADATA[m_key])
+            base_svg = base_svg.replace("##{}##".format(m_key), value)
 
         self.broot = ET.fromstring(base_svg)
 

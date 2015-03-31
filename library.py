@@ -2,6 +2,7 @@ import argparse
 import os
 import os.path
 import re
+import yaml
 
 from symlib import SymbolLibrary
 
@@ -17,17 +18,29 @@ interaction.add_argument('--output',
 interaction.add_argument('--filter',
                          help="Filter the filenames with regex match",
                          default=None)
+interaction.add_argument('--metadata',
+                         help="A yaml file containing default metadata",
+                         default=None)
+interaction.add_argument('--base',
+                         help="The base template file",
+                         default='base.svg')
 
-metadata = parser.add_argument_group('Metadata')
-metadata.add_argument('--title',
-                      help="Title of Library",
-                      default="Symbol Library")
-metadata.add_argument('--description',
-                      help="Description of Library",
-                      default="A symbol library")
-metadata.add_argument('--author',
-                      help="The Author of the library",
-                      default="Anon")
+mdata = parser.add_argument_group('Metadata')
+mdata.add_argument('--title',
+                   help="Title of Library",
+                   default="Symbol Library")
+mdata.add_argument('--description',
+                   help="Description of Library",
+                   default="A symbol library")
+mdata.add_argument('--author',
+                   help="The Author of the library",
+                   default="Anon")
+mdata.add_argument('--language',
+                   help="The Language of the library",
+                   default="English")
+mdata.add_argument('--license',
+                   help="The License of the library",
+                   default="GPL")
 args = vars(parser.parse_args())
 
 
@@ -39,8 +52,12 @@ e = 0
 files = [os.path.join(d, fn) for d, dn, fns in os.walk(args['directory']) for fn in fns]
 
 
-symlib = SymbolLibrary(args['output'], title=args['title'], description=args['description'],
-                       author=args['author'])
+if args['metadata']:
+    metadata = yaml.load(open(args['metadata']))
+else:
+    metadata = args
+
+symlib = SymbolLibrary(args['output'], base=args['base'], metadata=metadata)
 
 for filename in files:
     # Only process '.svg' files
