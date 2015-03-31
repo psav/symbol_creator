@@ -11,7 +11,7 @@ An example usage is below. This example recurses through the ```raw_lib``` direc
 # Metadata
 Simple metadata is supplied through the use of command line options to change the ```title```, ```license```, ```description```, ```author``` and ```language``` of the library. These are the only options supported by the supplied ```base.svg``` file. These options can also be supplied by using the ```--metadata``` option and pointing to a file which will have contents similar to the following.
 
-```
+```yaml
 author: Anon
 language: English
 description: A symbol library
